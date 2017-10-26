@@ -1,0 +1,11 @@
+#!/bin/bash
+# Installing SolarWind Agent To Centos
+
+if [ "$(id -u)" = "0" ]; then ESH='bash'; export SWR=''; else ESH='su'; export SWR='switch to root and '; echo "You will be prompted for root password."; fi; ${ESH} -c 'D=centos-5;P=/Orion/AgentManagement/LinuxPackageRepository.ashx?path=;U=(http://mcafee:8787 http://McAFee:8787 http://192.168.1.107:8787);M=/etc/yum.repos.d/swiagent-${D}.mirrors;for u in ${U[*]};do echo "${u}${P}/dists/${D}/\$basearch";done>$M;printf "[swiagent]\nname=SolarWinds Agent\nmirrorlist=file://%s\nenabled=1\ngpgcheck=0\n" $M>$(dirname ${M})/swiagent-${D}.repo; echo "Repository for SolarWinds agent was added. To install agent ${SWR}use following commands:"; echo " yum clean all && yum install swiagent"'
+
+yum clean all && yum install swiagent -y
+
+printf '2\n192.168.1.107\n7' | service swiagentd init
+
+service swiagentd status
+

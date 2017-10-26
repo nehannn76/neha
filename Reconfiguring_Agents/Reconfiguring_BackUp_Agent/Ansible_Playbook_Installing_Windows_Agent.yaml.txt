@@ -1,0 +1,10 @@
+---
+ - hosts: mymachine
+   gather_facts: False
+   tasks: 
+        - name: Copying script files to Client.
+          win_copy:
+             src: /home/na/neha-playbooks-backup/Install.ps1 
+             dest: C:\install.ps1
+        - name: installing agents and establishing trust
+          win_shell: C:\install.ps1

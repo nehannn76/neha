@@ -1,0 +1,47 @@
+---
+ - hosts: WIN06.ansible.com
+   tasks:
+        - name: Copying Agent Package From Controller To Client.
+          win_copy:
+             src: /home/na/neha-playbooks-antivirus/No-Restart.zip
+             dest: C:\
+        - name: Extracting .zip File
+          win_unzip:
+             src: C:\No-Restart.zip
+             dest: C:\
+        - name: Executing Powershell Command to install The  Agent.
+          win_shell: msiexec.exe /i "C:\No-Restart\Sep64.msi" /qn
+        - name: Restarting Client Machine
+          win_reboot: 
+        - name: Starting Services
+          win_service: 
+             name: SNAC
+             state: started
+        - name: Removing File From Client
+          win_file:
+             path: C:\No-Restart
+             state: absent
+        - name: Removing File Zip file
+          win_file:
+             path: C:\No-Restart.zip
+             state: absent
+           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,3 @@
+$agentservers = @("WIN06.ansible.com")
+$belogon = Get-BELogonAccount "Administrator"
+$agentservers | Install-BEWindowsAgentServer -LogonAccount $belogon -RestartAutomaticallyIfNecessary -UpgradeAutomatically -Force | Wait-BEJob

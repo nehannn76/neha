@@ -1,0 +1,17 @@
+---
+- hosts : 192.168.1.145
+  become: root
+  tasks :
+        - name: copy solar wind agent to specified path
+          copy: src=/home/na/neha-playbook/abc/ubuntu.sh dest=/tmp/ubuntu.sh
+       
+        - name: changing permissions of the script file
+          file:
+           path: /tmp/ubuntu.sh
+           mode: 0755
+             
+        - name: installing solar winds agent
+          shell: /tmp/ubuntu.sh 
+        
+   
+           

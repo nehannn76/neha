@@ -1,0 +1,14 @@
+---
+ -  hosts: localhost
+    connection: local
+    vars_files:
+    - [var.yml]
+    tasks:
+    - name: Creating User Neha
+      iam:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        iam_type: user
+        name: Neha
+        state: present
+        access_key_state: create  

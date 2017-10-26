@@ -1,0 +1,23 @@
+---
+- hosts : WIN03.ansible.com
+  tasks :
+        - name: Copying solarwind agent .msi to specified path
+          win_copy: src=/home/na/neha-playbook/SolarWinds-Agent.msi dest=c:\SolarWinds-Agent.msi
+        - name: copying powershell script to specified path
+          win_copy: src=/home/na/neha-playbook/solaris-uninstall.ps1 dest=c:\solaris-uninstall.ps1
+        - name: Copying solarwind agent .mst file to specified path
+          win_copy: src=/home/na/neha-playbook/SolarWinds-Agent.mst dest=c:\SolarWinds-Agent.mst
+        - name: uninstall solarwind agent
+          win_shell: C:\solaris-uninstall.ps1
+        - name: Deleting script file
+          win_file:
+           path: C:\solaris-uninstall.ps1
+           state: absent
+        - name: Deleting .msi file
+          win_file:
+           path: C:\SolarWinds-Agent.msi
+           state: absent
+        - name: Deleting .mst file
+          win_file:
+           path: C:\SolarWinds-Agent.mst
+           State: absent

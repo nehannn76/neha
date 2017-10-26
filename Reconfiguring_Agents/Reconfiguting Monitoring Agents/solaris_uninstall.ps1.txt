@@ -1,0 +1,1 @@
+msiexec.exe /x "C:\SolarWinds-Agent.msi" /qn TRANSFORMS="C:\SolarWinds-Agent.mst"

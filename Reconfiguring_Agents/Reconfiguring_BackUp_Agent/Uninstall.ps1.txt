@@ -1,0 +1,4 @@
+$app = Get-WmiObject -Class win32_product | Where-Object {
+       $_.Name -match "Veritas Backup Exec Remote Agent for Windows"
+}
+$app.Uninstall()

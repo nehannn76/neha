@@ -1,0 +1,43 @@
+---
+ - hosts: WIN06.ansible.com
+   tasks:
+        - name: Copying Agent for Un-Intsallation
+          win_copy: 
+             src: /home/na/neha-playbooks-antivirus/No-Restart.zip
+             dest: C:\
+        - name: Exttracting .zip File
+          win_unzip:
+             src: C:\No-Restart.zip
+             dest: C:\
+             delete_archive: yes
+        - name: Executing PowerShell Script.
+          win_shell: msiexec.exe /x "C:\No-Restart\Sep64.msi" /qn
+        - name: Restarting Client machine.
+          win_reboot:
+        - name: Removing File From Client
+          win_file:
+             path: C:\No-Restart
+             state: absent
+        - name: Removing File Zip File
+          win_file: 
+             path: C:\No-Restart.zip
+             state: absent
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

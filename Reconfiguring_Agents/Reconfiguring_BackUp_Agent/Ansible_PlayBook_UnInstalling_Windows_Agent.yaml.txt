@@ -1,0 +1,9 @@
+---
+- hosts: WIN06.ansible.com
+  tasks:
+        - name: Copying Script file.
+          win_copy:
+             src: /home/na/neha-playbooks-backup/Uninstall.ps1
+             dest: C:\Uninstall.ps1
+        - name: Uninstalling Package(Running Script).
+          win_shell: C:\Uninstall.ps1

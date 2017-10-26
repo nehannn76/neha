@@ -1,0 +1,16 @@
+---
+   - name: Configuring Role Based Access Control.
+     hosts: localhost
+     connection: local
+     vars_files:
+     - [var.yml]
+     tasks:
+     - name: Adding Policy To User.
+       iam_policy:
+              iam_type: user
+              iam_name: Bob
+              policy_name: S3ReadOnlyAccess
+              policy_doument: policy.json
+              state: present
+              aws_access_key: "{{ aws_access_key }}"
+              aws_secret_key: "{{ aws_secret_key }}"

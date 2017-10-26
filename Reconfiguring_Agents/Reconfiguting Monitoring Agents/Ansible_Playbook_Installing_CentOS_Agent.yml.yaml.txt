@@ -1,0 +1,16 @@
+---
+- hosts : 192.168.1.144
+  become: root
+  tasks :
+        - name: copy solar wind agent to specified path
+          copy: src=/home/na/neha-playbook/abc/centos.sh dest=/tmp/centos.sh
+       
+        - name: changing permissions of the script file
+          file:
+           path: /tmp/centos.sh
+           mode: 0755
+             
+        - name: installing solar winds agent
+          shell: /tmp/centos.sh       
+   
+           

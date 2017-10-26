@@ -1,0 +1,18 @@
+--- 
+  - name: Enabling Patching in AWS 
+    hosts: localhost
+    connection: local
+    gather_facts: no
+    sudo: yes
+    vars_files:
+    - [var.yml]
+    - [testoutput.yml]
+    tasks:
+        - name: delete
+          command: aws ssm describe-patch-baselines
+#          register: id
+#        - local_action: copy content={{ id.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/testoutput.yml
+#        - name: printing
+#          debug: msg= "{{ id.stdout }}"
+          aws_access_key: "{{ aws_access_key }}"
+          aws_secret_key: "{{ aws_secret_key }}"
