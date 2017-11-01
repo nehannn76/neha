@@ -14,11 +14,29 @@
 
     tasks: 
       - name: Removing Role from Iam Instane Profile.
-        command: aws iam remove-role-from-instance-profile --instance-profile-name EC2-Systems-Manager-profile --role-name EC2-Systems-Manager-Role
+        command: aws iam remove-role-from-instance-profile --instance-profile-name EC2-Systems-Manager-Role --role-name EC2-Systems-Manager-Role
+
+      - name: Removing Role from Iam Instane Profile.
+        command: aws iam remove-role-from-instance-profile --instance-profile-name Maintenance-Window-Role --role-name Maintenance-Window-Role
+
+      - name: Detaching IAM Role policy.
+        command: aws iam detach-role-policy --role-name EC2-Systems-Manager-Role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+      - name: Detaching IAM Role policy.
+        command: aws iam detach-role-policy --role-name EC2-Systems-Manager-Role --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess
+
       - name: Deleting IAM Role named 'EC2-Systems-Manager-Role'.
         command: aws iam delete-role --role-name EC2-Systems-Manager-Role
+
+      - name: Detaching IAM Role policy.
+        command: aws iam detach-role-policy --role-name Maintenance-Window-Role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonSSMMaintenanceWindowRole
+
+      - name: Deleting IAM Role named 'Maintenance-Window-Role'.
+        command: aws iam delete-role --role-name Maintenance-Window-Role
+
       - name: Deleting IAM Instance Profile.
         command: aws iam delete-instance-profile --instance-profile-name EC2-Systems-Manager-Profile
+
       - name: Disassociating iam instance profile
         command: aws ec2 disassociate-iam-instance-profile --association-id "{{ IamInstanceProfileAssociation.AssociationId }}"
       - name: Detaching policy from user  
