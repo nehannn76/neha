@@ -4,7 +4,7 @@
       {
          "Effect": "Allow",
          "Action": ["iam:PassRole"],
-         "Resource": "*"
+         "Resource": "arn:aws:iam::854007681527:role/EC2-Systems-Manager-Role"
       }
    ]
 }
