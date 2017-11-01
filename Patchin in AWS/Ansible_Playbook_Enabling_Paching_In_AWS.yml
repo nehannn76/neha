@@ -7,21 +7,39 @@
     vars_files:
     - [var.yml]
     tasks: 
-        - name: Creating IAM Role named 'EC2-Systems-Manager-Role' and Attaching Policy.
-          command: aws iam create-role --role-name EC2-Systems-Manager-Role --assume-role-policy-document file://trust_policy.json
+#        - name: Creating IAM Role named EC2-Systems-Manager-Role.
+#          command: aws iam create-role --role-name EC2-Systems-Manager-Role --assume-role-policy-document file://SM_trust_policy.json
 
-        - name: Creating IAM instance profile.
-          command: aws iam create-instance-profile --instance-profile-name EC2-Systems-Manager-Profile
+#        - name: Attaching Policy to created role.
+#          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM --role-name EC2-Systems-Manager-Role
 
-        - name: Adding role to IAM instance profile.
-          command: aws iam add-role-to-instance-profile --instance-profile-name EC2-Systems-Manager-Profile --role-name EC2-Systems-Manager-Role
+#        - name: Attaching Policy to created role.
+#          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess --role-name EC2-Systems-Manager-Role
+ 
+#        - name: Creating IAM Role named Maintenance-Window-Role.
+#          command: aws iam create-role --role-name Maintenance-Window-Role --assume-role-policy-document file://MW_trust_policy.json
+ 
+#        - name: Attaching Policy to created role.
+#          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonSSMMaintenanceWindowRole --role-name Maintenance-Window-Role
+
+#        - name: Creating IAM instance profile.
+#          command: aws iam create-instance-profile --instance-profile-name EC2-Systems-Manager-Role
+
+#        - name: Creating IAM instance profile.
+#          command: aws iam create-instance-profile --instance-profile-name Maintenance-Window-Role
+
+#        - name: Adding role to IAM instance profile.
+#          command: aws iam add-role-to-instance-profile --instance-profile-name EC2-Systems-Manager-Role --role-name EC2-Systems-Manager-Role
+
+#        - name: Adding role to IAM instance profile.
+#          command: aws iam add-role-to-instance-profile --instance-profile-name Maintenance-Window-Role --role-name Maintenance-Window-Role
 
         - name: Pausing playbook execution for role to get added into instance profile.
           pause:
             seconds: 30 
 
         - name: Adding Iam Instance profile ec2 instance
-          command: aws ec2 associate-iam-instance-profile --instance-id i-0ce2fc1242b26ce20 --iam-instance-profile Name="EC2-Systems-Manager-Profile"
+          command: aws ec2 associate-iam-instance-profile --instance-id i-0ce2fc1242b26ce20 --iam-instance-profile Name="EC2-Systems-Manager-Role"
           register: aid
         - local_action: copy content={{ aid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/association.yml
 
@@ -40,8 +58,12 @@
         - name: Attaching policy to user
           command: aws iam attach-user-policy --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess --user-name ssmPatchUser
 
+#        - name: Creating Patch Baseline
+#          command: aws ssm create-patch-baseline --name "testBaseline" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=MSRC_SEVERITY,Values=[Critical,Important,Moderate]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=7}]" --description "myBaseline"
+
         - name: Creating Patch Baseline
-          command: aws ssm create-patch-baseline --name "testBaseline1" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=MSRC_SEVERITY,Values=[Critical,Important,Moderate]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=1}]" --description "myBaseline"
+          command: aws ssm create-patch-baseline --name "Production-Baseline" --operating-system "WINDOWS" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=PRODUCT,Values=[WindowsServer2012R2]},{Key=MSRC_SEVERITY,Values=[Critical,Important]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=7}]" --description "Baseline containing all updates approved for production systems"
+
           register: baselineid
         - local_action: copy content={{ baselineid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/baselineid.yml
         - name: Pausing for 30 seconds.
@@ -56,7 +78,7 @@
           command: aws ssm register-patch-baseline-for-patch-group --baseline-id {{ baseid.BaselineId }} --patch-group "Test-Patch"
 
         - name: Creating Maintenance Window
-          command: aws ssm create-maintenance-window --name myFirstMaintenanceWindow1 --schedule "cron(0 00 15 ? * MON-FRI)" --duration 6 --cutoff 1 --allow-unassociated-targets
+          command: aws ssm create-maintenance-window --name myFirstMaintenanceWindow --schedule "rate(2 minutes)" --duration 2 --cutoff 1 --allow-unassociated-targets
           register: winid
         - local_action: copy content={{ winid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/winid.yml
         - name: pausing for 30 seconds.
@@ -74,13 +96,13 @@
         - name: pausing for 20 seconds.
           pause:
             seconds: 20
-        - name: Including Window Target Id.
+        - name: Including Window Target Id.   
           include_vars:
                  file: /home/automation/ajishaws/ansibleaws_files/neha/wintargetid.yml
                  name: wtid
 
         - name: Registering task with maintenance window
-          command: aws ssm register-task-with-maintenance-window --window-id {{ wid.WindowId }} --targets "Key=WindowTargetIds,Values={{ wtid.WindowTargetId }}" --task-arn "AWS-ApplyPatchBaseline" --service-role-arn "arn:aws:iam::854007681527:policy/ssmPassRole" --task-type "RUN_COMMAND" --max-concurrency 2 --max-errors 1 --priority 1 --task-parameters "{\"Operation\":{\"Values\":[\"Install\"]}}"
+          command: aws ssm register-task-with-maintenance-window --window-id {{ wid.WindowId }} --targets "Key=WindowTargetIds,Values={{ wtid.WindowTargetId }}" --task-arn "AWS-ApplyPatchBaseline" --service-role-arn "arn:aws:iam::854007681527:role/Maintenance-Window-Role" --task-type "RUN_COMMAND" --max-concurrency 2 --max-errors 1 --priority 1 --task-parameters "{\"Operation\":{\"Values\":[\"Install\"]}}"
           register: wintaskid
         - local_action: copy content={{ wintaskid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/wintaskid.yml
 
