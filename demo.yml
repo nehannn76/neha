@@ -1,0 +1,33 @@
+--- 
+  - name: Enabling Patching in AWS 
+    hosts: localhost
+    connection: local
+    gather_facts: no
+    sudo: yes
+    vars_files:
+    - [var.yml]
+    - [winid.yml]
+    - [wintaskid.yml]
+    tasks: 
+     - name: Patch Compilance Summary
+#       command: aws ec2 describe-instance-status --instance-ids i-0ce2fc1242b26ce20
+#        command: aws ec2 stop-instance --instance-ids i-0ce2fc1242b26ce20
+#       command: aws ssm describe-maintenance-window-tasks --window-id {{ WindowId }}
+       command: aws ssm describe-maintenance-window-executions --window-id {{ WindowId }}
+#     - name: status
+#       command: aws ssm describe-maintenance-window-execution-tasks --window-excution-id "97b4b50b-caf2-449d-9d78-ae248e0378b2"
+#       register: abc
+#     - name: abc 
+#       debug: 
+#         msg:"{{ abc.stdout }}"
+#      - name: get instance status
+#        command: aws ssm describe-instance-patches --instance-id i-0ce2fc1242b26ce20 --filters "Key=State, Values=Missing"
+#      - name: list policies.
+#        command: aws iam list-role-policies --role-name Maintenance-Wondow-Role
+#      - name: list roles
+#        command: aws iam list-roles
+#      - name: Creating Patchbaseline
+#        command: aws ssm create-patch-baseline --name "Production-Baseline" --operating-system "WINDOWS" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=PRODUCT,Values=[WindowsServer2012R2]},{Key=MSRC_SEVERITY,Values=[Critical,Important]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=7}]" --description "Baseline containing all updates approved for production systems"
+
+       aws_access_key: "{{ aws_access_key }}"
+       aws_secret_key: "{{ aws_secret_key }}"

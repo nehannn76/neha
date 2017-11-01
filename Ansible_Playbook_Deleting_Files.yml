@@ -1,0 +1,26 @@
+---
+ - hosts: localhost
+   connection: local
+   gather_facts: no
+
+   tasks:
+       - name: Deleting association.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/association.yml
+          state: absent
+       - name: Deleting baselineid.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/baselineid.yml
+          state: absent
+       - name: Deleting winid.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/winid.yml
+          state: absent
+       - name: Deleting wintargetid.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/wintargetid.yml
+          state: absent
+       - name: Deleting wintaskid.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/wintaskid.yml
+          state: absent

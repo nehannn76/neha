@@ -1,0 +1,61 @@
+--- 
+  - name: Enabling Patching in AWS 
+    hosts: localhost
+    connection: local
+    gather_facts: no
+    sudo: yes
+    vars_files:
+    - [var.yml]
+    - [baselineid.yml]
+    - [winid.yml]
+    - [wintargetid.yml]
+    - [wintaskid.yml]
+    - [association.yml]
+
+    tasks: 
+      - name: Removing Role from Iam Instane Profile.
+        command: aws iam remove-role-from-instance-profile --instance-profile-name EC2-Systems-Manager-Role --role-name EC2-Systems-Manager-Role
+
+      - name: Removing Role from Iam Instane Profile.
+        command: aws iam remove-role-from-instance-profile --instance-profile-name Maintenance-Window-Role --role-name Maintenance-Window-Role
+
+      - name: Detaching IAM Role policy.
+        command: aws iam detach-role-policy --role-name EC2-Systems-Manager-Role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+      - name: Detaching IAM Role policy.
+        command: aws iam detach-role-policy --role-name EC2-Systems-Manager-Role --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess
+
+      - name: Deleting IAM Role named 'EC2-Systems-Manager-Role'.
+        command: aws iam delete-role --role-name EC2-Systems-Manager-Role
+
+      - name: Detaching IAM Role policy.
+        command: aws iam detach-role-policy --role-name Maintenance-Window-Role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonSSMMaintenanceWindowRole
+
+      - name: Deleting IAM Role named 'Maintenance-Window-Role'.
+        command: aws iam delete-role --role-name Maintenance-Window-Role
+
+      - name: Deleting IAM Instance Profile.
+        command: aws iam delete-instance-profile --instance-profile-name EC2-Systems-Manager-Profile
+
+      - name: Disassociating iam instance profile
+        command: aws ec2 disassociate-iam-instance-profile --association-id "{{ IamInstanceProfileAssociation.AssociationId }}"
+      - name: Detaching policy from user  
+        command: aws iam detach-user-policy --user-name ssmPatchUser --policy-arn arn:aws:iam::854007681527:policy/ssmPassRole
+      - name: Detaching policy from user
+        command: aws iam detach-user-policy --user-name ssmPatchUser --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess
+      - name: Deleting User
+        command: aws iam delete-user --user-name ssmPatchUser
+      - name: Deleting ssmpassrole
+        command: aws iam delete-policy --policy-arn arn:aws:iam::854007681527:policy/ssmPassRole
+      - name: Deregister patch baseline from patch group.
+        command: aws ssm deregister-patch-baseline-for-patch-group --patch-group "Test-Patch" --baseline-id "arn:aws:ssm:eu-west-1:854007681527:patchbaseline/{{ BaselineId }}"
+      - name: Deregister target from maintenance windows
+        command: aws ssm deregister-target-from-maintenance-window --window-id {{ WindowId }} --window-target-id {{ WindowTargetId }}
+      - name: Deleting Maintance Window.
+        command: aws ssm delete-maintenance-window --window-id {{ WindowId }}
+      - name: Deleting Patch Baseline.
+        command: aws ssm delete-patch-baseline --baseline-id {{ BaselineId }}
+      - name: Deleting  Tag from EC2 instance.
+        command: aws ec2 delete-tags --resources i-0ce2fc1242b26ce20 --tags Key="Patch Group"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
