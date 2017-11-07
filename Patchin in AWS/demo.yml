@@ -1,0 +1,18 @@
+--- 
+  - name: Enabling Patching in AWS 
+    hosts: localhost
+    connection: local
+    gather_facts: no
+    sudo: yes
+    vars_files:
+    - [var.yml]
+    - [winid.yml]
+    - [instanceid.yml]
+    tasks: 
+      - name: Patch Compilance Summary
+#        command: aws ec2 stop-instances --instance-ids {{ InstanceId }}
+#        command: aws ssm describe-maintenance-window-executions --window-id {{ WindowId }}
+#        command: aws ec2 describe-iam-instance-profile-associations
+        command:  aws ec2 describe-instance-status --instance-id {{ InstanceId }}
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
