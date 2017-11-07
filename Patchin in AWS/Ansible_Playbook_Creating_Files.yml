@@ -27,3 +27,7 @@
          file: 
           path: /home/automation/ajishaws/ansibleaws_files/neha/wintaskid.yml
           state: touch
+       - name: Creating instanceid.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/instanceid.yml
+          state: touch

@@ -6,64 +6,61 @@
     sudo: yes
     vars_files:
     - [var.yml]
+    - [instanceid.yml]
     tasks: 
-#        - name: Creating IAM Role named EC2-Systems-Manager-Role.
-#          command: aws iam create-role --role-name EC2-Systems-Manager-Role --assume-role-policy-document file://SM_trust_policy.json
+        - name: Creating IAM Role named EC2-Systems-Manager-Role.
+          command: aws iam create-role --role-name EC2-Systems-Manager-Role --assume-role-policy-document file://SM_trust_policy.json
 
-#        - name: Attaching Policy to created role.
-#          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM --role-name EC2-Systems-Manager-Role
+        - name: Attaching Policy to created role.
+          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM --role-name EC2-Systems-Manager-Role
 
-#        - name: Attaching Policy to created role.
-#          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess --role-name EC2-Systems-Manager-Role
+        - name: Attaching Policy to created role.
+          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess --role-name EC2-Systems-Manager-Role
  
-#        - name: Creating IAM Role named Maintenance-Window-Role.
-#          command: aws iam create-role --role-name Maintenance-Window-Role --assume-role-policy-document file://MW_trust_policy.json
+        - name: Creating IAM Role named Maintenance-Window-Role.
+          command: aws iam create-role --role-name Maintenance-Window-Role --assume-role-policy-document file://MW_trust_policy.json
  
-#        - name: Attaching Policy to created role.
-#          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonSSMMaintenanceWindowRole --role-name Maintenance-Window-Role
+        - name: Attaching Policy to created role.
+          command: aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonSSMMaintenanceWindowRole --role-name Maintenance-Window-Role
 
-#        - name: Creating IAM instance profile.
-#          command: aws iam create-instance-profile --instance-profile-name EC2-Systems-Manager-Role
+        - name: Creating IAM instance profile.
+          command: aws iam create-instance-profile --instance-profile-name EC2-Systems-Manager-Role
 
-#        - name: Creating IAM instance profile.
-#          command: aws iam create-instance-profile --instance-profile-name Maintenance-Window-Role
+        - name: Creating IAM instance profile.
+          command: aws iam create-instance-profile --instance-profile-name Maintenance-Window-Role
 
-#        - name: Adding role to IAM instance profile.
-#          command: aws iam add-role-to-instance-profile --instance-profile-name EC2-Systems-Manager-Role --role-name EC2-Systems-Manager-Role
+        - name: Adding role to IAM instance profile.
+          command: aws iam add-role-to-instance-profile --instance-profile-name EC2-Systems-Manager-Role --role-name EC2-Systems-Manager-Role
 
-#        - name: Adding role to IAM instance profile.
-#          command: aws iam add-role-to-instance-profile --instance-profile-name Maintenance-Window-Role --role-name Maintenance-Window-Role
+        - name: Adding role to IAM instance profile.
+          command: aws iam add-role-to-instance-profile --instance-profile-name Maintenance-Window-Role --role-name Maintenance-Window-Role
 
         - name: Pausing playbook execution for role to get added into instance profile.
           pause:
             seconds: 30 
 
         - name: Adding Iam Instance profile ec2 instance
-          command: aws ec2 associate-iam-instance-profile --instance-id i-0ce2fc1242b26ce20 --iam-instance-profile Name="EC2-Systems-Manager-Role"
+          command: aws ec2 associate-iam-instance-profile --instance-id {{InstanceId }} --iam-instance-profile Name="EC2-Systems-Manager-Role"
           register: aid
         - local_action: copy content={{ aid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/association.yml
 
         - name: Adding Tag to ec2 instance.
-          command: aws ec2 create-tags --resources i-0ce2fc1242b26ce20 --tags Key='Patch Group',Value='Test-Patch'
+          command: aws ec2 create-tags --resources {{InstanceId }} --tags Key='Patch Group',Value='Test-Patch'
 
-        - name: Creating User ssmPatchUser
-          command: aws iam create-user --user-name ssmPatchUser
+#        - name: Creating User ssmPatchUser
+#          command: aws iam create-user --user-name ssmPatchUser
 
-        - name: Creating policy
-          command: aws iam create-policy --policy-name ssmPassRole --policy-document file://ssmpassrole.json
+#        - name: Creating policy
+#          command: aws iam create-policy --policy-name ssmPassRole --policy-document file://ssmpassrole.json
 
-        - name: Attaching policy to user
-          command: aws iam attach-user-policy --policy-arn arn:aws:iam::854007681527:policy/ssmPassRole --user-name ssmPatchUser
+#        - name: Attaching policy to user
+#          command: aws iam attach-user-policy --policy-arn arn:aws:iam::854007681527:policy/ssmPassRole --user-name Ramalingam.Saravanan
 
-        - name: Attaching policy to user
-          command: aws iam attach-user-policy --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess --user-name ssmPatchUser
-
-#        - name: Creating Patch Baseline
-#          command: aws ssm create-patch-baseline --name "testBaseline" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=MSRC_SEVERITY,Values=[Critical,Important,Moderate]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=7}]" --description "myBaseline"
+#        - name: Attaching policy to user
+#          command: aws iam attach-user-policy --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess --user-name Ramalingam.Saravanan
 
         - name: Creating Patch Baseline
-          command: aws ssm create-patch-baseline --name "Production-Baseline" --operating-system "WINDOWS" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=PRODUCT,Values=[WindowsServer2012R2]},{Key=MSRC_SEVERITY,Values=[Critical,Important]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=7}]" --description "Baseline containing all updates approved for production systems"
-
+          command: aws ssm create-patch-baseline --name "Production-Baseline" --operating-system "WINDOWS" --approval-rules "PatchRules=[{PatchFilterGroup={PatchFilters=[{Key=PRODUCT,Values=[WindowsServer2012R2]},{Key=MSRC_SEVERITY,Values=[Critical,Important]},{Key=CLASSIFICATION,Values=[SecurityUpdates,Updates,UpdateRollups,CriticalUpdates]}]},ApproveAfterDays=0}]" --description "Baseline containing all updates approved for production systems"
           register: baselineid
         - local_action: copy content={{ baselineid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/baselineid.yml
         - name: Pausing for 30 seconds.
@@ -74,11 +71,11 @@
                  file: /home/automation/ajishaws/ansibleaws_files/neha/baselineid.yml
                  name: baseid
 
-        - name: Linking PatchBaseline With
+        - name: Linking PatchBaseline With PatchGroup
           command: aws ssm register-patch-baseline-for-patch-group --baseline-id {{ baseid.BaselineId }} --patch-group "Test-Patch"
 
         - name: Creating Maintenance Window
-          command: aws ssm create-maintenance-window --name myFirstMaintenanceWindow --schedule "rate(2 minutes)" --duration 2 --cutoff 1 --allow-unassociated-targets
+          command: aws ssm create-maintenance-window --name myFirstMaintenanceWindow --schedule "cron(0 40 10 ? * MON-FRI)" --duration 2 --cutoff 1 --allow-unassociated-targets
           register: winid
         - local_action: copy content={{ winid.stdout }} dest=/home/automation/ajishaws/ansibleaws_files/neha/winid.yml
         - name: pausing for 30 seconds.

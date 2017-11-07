@@ -24,3 +24,7 @@
          file: 
           path: /home/automation/ajishaws/ansibleaws_files/neha/wintaskid.yml
           state: absent
+       - name: Deleting instanceid.yml
+         file: 
+          path: /home/automation/ajishaws/ansibleaws_files/neha/instanceid.yml
+          state: absent
